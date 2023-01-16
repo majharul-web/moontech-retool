@@ -2,26 +2,26 @@ import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
-import { addProduct, togglePostSuccess } from "../../features/products/productsSlice";
+import { useAddProductMutation } from "../../features/api/apiSlice";
 
 const AddProduct = () => {
   const { register, handleSubmit, reset } = useForm();
-  const { isLoading, isError, error, postSuccess } = useSelector((state) => state.product);
+  const [postProduct, { isError, isLoading, isSuccess, data, error }] = useAddProductMutation();
+
   const dispatch = useDispatch();
 
   useEffect(() => {
     if (isLoading) {
       toast.loading("Posting...", { id: "addProduct" });
     }
-    if (!isLoading && postSuccess) {
+    if (!isLoading && isSuccess) {
       toast.success("Product added .", { id: "addProduct" });
-      dispatch(togglePostSuccess());
       reset();
     }
     if (!isLoading && isError) {
       toast.error(error, { id: "addProduct" });
     }
-  }, [isLoading, isError, error, postSuccess]);
+  }, [isLoading, isError, error, isSuccess]);
 
   const submit = (data) => {
     const product = {
@@ -32,7 +32,7 @@ const AddProduct = () => {
       keyFeature: [data.keyFeature1, data.keyFeature2, data.keyFeature3, data.keyFeature4],
       spec: [],
     };
-    dispatch(addProduct(product));
+    postProduct(product);
   };
 
   return (

@@ -1,24 +1,25 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import ProductCard from "../../components/ProductCard";
+import { useGetProductsQuery } from "../../features/api/apiSlice";
 import { toggleBrans, toggleStock } from "../../features/filter/filterSlice";
-import { getProducts } from "../../features/products/productsSlice";
 
 const Home = () => {
+  // const [products, setProducts] = useState([]);
   const dispatch = useDispatch();
   const filters = useSelector((state) => state.filter);
 
   const { stocks, brands } = filters;
-  const { products, isLoading } = useSelector((state) => state.product);
 
-  useEffect(() => {
-    dispatch(getProducts());
-  }, []);
+  const { isError, isLoading, isSuccess, data } = useGetProductsQuery(null, {
+    refetchOnMountOrArgChange: true,
+  });
 
+  const products = data?.data;
   const activeClass = "text-white  bg-indigo-500 border-white";
 
   let content;
-  if (isLoading) content = <p>Loading...</p>;
+  if (isLoading) return <p>Loading...</p>;
   if (products.length > 0)
     content = products.map((product) => <ProductCard key={product.model} product={product} />);
 
